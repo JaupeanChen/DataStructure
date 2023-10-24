@@ -6,6 +6,7 @@ public class MySort {
 
     public static void main(String[] args) {
         int[] arr = {3, 9, 2, 6, 4, 8};
+        System.out.println("原数组：");
         printArr(arr);
 //        System.out.println("------插入排序-----");
 //        insertSort(arr);
@@ -19,10 +20,18 @@ public class MySort {
 //        bubbleSort(arr);
 //        printArr(arr);
 
-        System.out.println("------快速排序-----");
-        quickSort(arr, 0, arr.length - 1);
-        printArr(arr);
+//        System.out.println("------快速排序-----");
+//        quickSort(arr, 0, arr.length - 1);
+//        printArr(arr);
 
+        System.out.println("------归并排序-----");
+//        mergeSort(arr, 0, arr.length - 1);
+//        printArr(arr);
+
+//        mergeSortByNonRecur(arr, 0, arr.length - 1);
+//        printArr(arr);
+
+        test();
     }
 
     //插入排序
@@ -134,6 +143,84 @@ public class MySort {
         return left;
     }
 
+    //归并排序
+    //顾名思义，通过递归分拆再合并来处理
+    //方法一，递归解法
+    public static void mergeSort(int[] arr, int l, int r) {
+        if (l == r) {
+            return;
+        }
+        int mid = (r - l) / 2 + l;
+        mergeSort(arr, l, mid);
+        mergeSort(arr, mid + 1, r);
+        merge(arr, l, mid, r);
+    }
+
+    //方法二，非递归解法
+    //其实思路就是递归反推，也就是拆到最小单位值只不断merge回来
+    //step = 1 =>2个数有序
+    //step = 2 =>4个数有序
+    public static void mergeSortByNonRecur(int[] arr, int l, int r) {
+        int step = 1;
+        while (step < arr.length) {
+            int start = l;
+            int end;
+            //内循环的结束条件是：凑不满左组或刚好凑满左组, 因为上一次已经排好序了
+            //也就是当前轮的mid要小于r
+            while (step > r || start + step - 1 < r) {
+                int mid = start + step - 1;
+                //防止end越界
+                end = Math.min(mid + step, r);
+                merge(arr, start, mid, end);
+                start = end + 1; //下一个新start
+            }
+            step = step << 1;
+        }
+    }
+
+    //错误方法
+//    public static void mergeSort(int[] arr, int l, int mid, int r) { //TODO 怎么想到一开始就传mid的，我丢
+//        if (l == r) {
+//            //只剩下一个数时递归结束
+//            return;
+//        }
+//
+//        int m1 = (mid - l) / 2 + l;
+//        mergeSort(arr, l, m1, mid);
+//        merge(arr, l, m1, mid);
+//
+//        int m2 = (r - mid + 1) / 2 + (mid + 1);
+//        mergeSort(arr, mid + 1, m2, r);
+//        merge(arr, mid + 1, m2, r);
+//    }
+
+    public static void merge(int[] arr, int l, int mid, int r) {
+        int indexL = l;
+        int indexR = mid + 1;
+        int[] ans = new int[r - l + 1];
+        int i = 0;
+        while (indexL <= mid && indexR <= r) {
+            //两组的指针都在各自区间内
+            if (arr[indexL] < arr[indexR]) {
+                ans[i++] = arr[indexL++];
+            } else {
+                ans[i++] = arr[indexR++];
+            }
+        }
+        //假如左边组指针还没越界，直接全拿进来
+        while (indexL <= mid) {
+            ans[i++] = arr[indexL++];
+        }
+        //假如右边组指针还没越界，直接全拿进来
+        while (indexR <= r) {
+            ans[i++] = arr[indexR++];
+        }
+        //把结果传回原数组
+        for (int an : ans) {
+            arr[l++] = an;
+        }
+    }
+
     public static void swap(int[] arr, int index1, int index2) {
         int temp = arr[index1];
         arr[index1] = arr[index2];
@@ -145,6 +232,70 @@ public class MySort {
             System.out.print(i + " ");
         }
         System.out.println();
+    }
+
+    //对数器
+    //for test
+    public static void test() {
+        int testTime = 10;
+        int maxSize = 50;
+        int maxValue = 50;
+        System.out.println("测试开始");
+        System.out.println("---------------------");
+        for (int i = 0; i < testTime; i++) {
+            int[] arr = generateArr(maxSize, maxValue);
+            if (i < 4) {
+                System.out.println("随机生成数组：");
+                printArr(arr);
+            }
+            int[] arr2 = copy(arr);
+            mergeSort(arr, 0, arr.length - 1);
+            mergeSortByNonRecur(arr2, 0, arr2.length - 1);
+            if (i < 4) {
+                System.out.println("排序结果：");
+                printArr(arr);
+            }
+            boolean isSame = isSame(arr, arr2);
+            if (!isSame) {
+                System.out.println("发生错误！");
+                break;
+            }
+        }
+        System.out.println("---------------------");
+        System.out.println("测试结束，成功运行！");
+    }
+
+    public static int[] generateArr(int maxSize, int maxValue) {
+        //[0, 1)
+        int size = (int) (Math.random() * maxSize);
+        int[] target = new int[size];
+        for (int i = 0; i < size; i++) {
+            int value = (int) (Math.random() * maxValue);
+            target[i] = value;
+        }
+        return target;
+    }
+
+    public static int[] copy(int[] origin) {
+//        System.out.println("原数组：");
+//        printArr(origin);
+        int[] ans = new int[origin.length];
+        System.arraycopy(origin, 0, ans, 0, origin.length);
+//        System.out.println("拷贝数组：");
+//        printArr(ans);
+        return ans;
+    }
+
+    public static boolean isSame(int[] arr, int[] arr2) {
+        if (arr.length != arr2.length) return false;
+        boolean ans = true;
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] != arr2[i]) {
+                ans = false;
+                break;
+            }
+        }
+        return ans;
     }
 
 }
