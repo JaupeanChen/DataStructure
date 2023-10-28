@@ -152,42 +152,79 @@ public class MyLinked {
 //            finalTest = finalTest.next;
 //        }
 
-        System.out.println();
-        System.out.println("-------合并两个有序链表-------");
+//        System.out.println();
+//        System.out.println("-------合并两个有序链表-------");
+//        Node node1 = new Node(1);
+//        Node node3 = new Node(3);
+//        Node node5 = new Node(5);
+//        Node node7 = new Node(7);
+//        node1.next = node3;
+//        node3.next = node5;
+//        node5.next = node7;
+//        System.out.println("第一条链表: ");
+//        Node test = node1;
+//        while (test != null) {
+//            System.out.println("Node：" + test.value);
+//            test = test.next;
+//        }
+//
+//        Node node2 = new Node(3);
+//        Node node6 = new Node(6);
+//        Node node8 = new Node(8);
+//        node2.next = node6;
+//        node6.next = node8;
+//        System.out.println("第二条链表: ");
+//        Node test2 = node2;
+//        while (test2 != null) {
+//            System.out.println("Node：" + test2.value);
+//            test2 = test2.next;
+//        }
+//        System.out.println("合并: ");
+//        Node mergeNode = mergeLinkedList(node1, node2);
+//        while (mergeNode != null) {
+//            System.out.println("Node：" + mergeNode.value);
+//            mergeNode = mergeNode.next;
+//        }
+
+        System.out.println("-------判断是否有环-------");
+        Node node9 = new Node(9);
         Node node1 = new Node(1);
         Node node3 = new Node(3);
         Node node5 = new Node(5);
         Node node7 = new Node(7);
+        node9.next = node1;
         node1.next = node3;
         node3.next = node5;
         node5.next = node7;
-        System.out.println("第一条链表: ");
-        Node test = node1;
-        while (test != null) {
-            System.out.println("Node：" + test.value);
-            test = test.next;
-        }
+        node7.next = node1;
+//        Node node = hasLoop(node1);
+        Node node2 = new Node(2);
+        Node node4 = new Node(4);
+        node2.next = node4;
+        node4.next = node5;
+//        System.out.println("结果：" + (node == null ? "无环" : ("有环: " + node.value)));
+        Node intersect = getIntersectNode(node1, node2);
+        System.out.println(intersect == null ? "无相交" : ("相交节点为：" + intersect.value));
 
-        Node node2 = new Node(3);
-        Node node6 = new Node(6);
-        Node node8 = new Node(8);
-        node2.next = node6;
-        node6.next = node8;
-        System.out.println("第二条链表: ");
-        Node test2 = node2;
-        while (test2 != null) {
-            System.out.println("Node：" + test2.value);
-            test2 = test2.next;
-        }
-        System.out.println("合并: ");
-        Node mergeNode = mergeLinkedList(node1, node2);
-        while (mergeNode != null) {
-            System.out.println("Node：" + mergeNode.value);
-            mergeNode = mergeNode.next;
-        }
-
-
+        //引用传递test
+//        System.out.println("--------------------");
+//        System.out.println("forLoop之前, node1: " + node1.value);
+//        System.out.println("传参前地址: " + node1); //地址一致, 但传入引用之后却不影响到原对象
+//        forLoop(node1);
+//        System.out.println("forLoop之后, node1: " + node1.value);
     }
+
+    //引用传递test
+//    public static void forLoop(Node head) {
+//        //所以这里传入的是引用副本（按引用传递，引用数据类型）
+//        System.out.println("传参时地址: " + head); //地址一致
+//        System.out.println("遍历前, head: " + head.value);
+////        while (head.next != null) {
+////            head = head.next;
+////        }
+//        head.value = 6;
+//        System.out.println("遍历后, head: " + head.value);
+//    }
 
     public static Node reverse(@NonNull Node head) {
         int reverseCount = 0;
@@ -612,4 +649,143 @@ public class MyLinked {
         return head;
     }
 
+    //TODO 给定两个可能有环也可能无环的单链表，头节点head1和head2。
+    //请实现一个函数，如果连个链表相交，返回相交的第一个节点，如果不相交返回null
+    //要求：如果两条链表长度和为N，时间复杂度请达到O(N)，额外空间复杂度请达到O(1)
+    //分析：空间复杂度要求也就是不能使用容器了。链表分为有环链表和无环链表，所以我们
+    //从链表分类入手，先判断两条链表是否有环:
+    //第一种情况: 无环   无环
+    //第二种情况: 有环   无环
+    //第三种情况: 无环   有环
+    //第四种情况: 有环   有环
+    //这样一来就清晰了，第一种情况很容易判断，而第二三种情况的话则不可能有相交的点，然后第四种情况再分类讨论
+    public static Node getIntersectNode(Node head1, Node head2) {
+        Node hasLoop1 = getLoopNode(head1);
+        Node hasLoop2 = getLoopNode(head2);
+        if (hasLoop1 == null && hasLoop2 == null) {
+            //都无环
+            return noLoop(head1, head2);
+        } else if (hasLoop1 != null && hasLoop2 != null) {
+            //都有环
+            return bothLoop(head1, hasLoop1, head2, hasLoop2);
+        }
+        return null;
+    }
+
+    //都有环
+    //再分三种情况：1.不相交 2.入环之前相交 3.环内相交
+    public static Node bothLoop(Node head1, Node loop1, Node head2, Node loop2) {
+        if (loop1 == loop2) {
+            //第二种情况，入环前相交
+            return ringLoop(head1, head2, loop1);
+        } else {
+            Node cur = loop1.next;
+            //走一圈，如果能遇到loop2，说明相交，否则就不相交
+            while (cur != loop1) {
+                if (cur == loop2) {
+                    //如果发现和loop2节点相同，那么就直接返回，循环结束，整个方法结束
+                    return loop1;
+                }
+                cur = cur.next;
+            }
+            //没遇上loop2就说明不相交
+            return null;
+
+//            while (loop1 != loop2) {
+//                loop1 = loop1.next;
+//                if (loop1 == loop2) {
+//                    //TODO 这里是要break还是直接return
+//                    ans = loop1;
+//                    break;
+//                }
+//            }
+        }
+    }
+
+    //把loop当做尾节点，就相当于无环链表相交的情况了
+    public static Node ringLoop(Node head1, Node head2, Node loop) {
+        int len = 0;
+        Node h1 = head1;
+        Node h2 = head2;
+        while (h1 != loop) {
+            len++;
+            h1 = h1.next;
+        }
+        while (h2 != loop) {
+            len--;
+            h2 = h2.next;
+        }
+        Node l = len > 0 ? head1 : head2;
+        Node s = l == head1 ? head2 : head1;
+        int temp = Math.abs(len);
+        while (temp > 0 && l != null) {
+            l = l.next;
+            temp--;
+        }
+        while (l != s && l != null && s != null) {
+            l = l.next;
+            s = s.next;
+        }
+        //走完出来就是相交节点
+        return l;
+    }
+
+    //两条无环链表判断相交
+    //先算长度差值，然后扣除差值从同一起跑线开始走，如果相遇那就相交
+    public static Node noLoop(Node head1, Node head2) {
+        int len = 0;
+        Node h1 = head1;
+        while (h1 != null) {
+            len++;
+            h1 = h1.next; //这里head引用发生了变化，会影响到传入方吗
+        }
+        Node h2 = head2;
+        while (h2 != null) {
+            len--;
+            h2 = h2.next;
+        }
+        //判断谁长谁短
+        Node l = len > 0 ? head1 : head2;
+        Node s = l == head1 ? head2 : head1;
+        int temp = Math.abs(len);
+        while (temp > 0 && l != null) {
+            l = l.next;
+            temp--;
+        }
+        //一起走
+        //那这里要是一进来就是呢? 那就只有一条链表了
+        while (l != s && l != null && s != null) {
+            l = l.next;
+            s = s.next;
+            if (l == s) {
+                return l;
+            }
+        }
+        return null;
+    }
+
+    //判断链表是否有环，如有返回入环节点，若无返回null
+    //用fast指针一次跑两步，slow指针一次跑一步，等它们相遇，fast返回头节点，然后fast和slow每次跑一步，
+    //它们再次相遇时则是入环节点。
+    public static Node getLoopNode(Node head) {
+        if (head == null) return null;
+        if (head.next == null || head.next.next == null) return null;
+        Node fast = head.next.next; //快指针跑两步
+        Node slow = head.next; //慢指针跑一步
+        while (fast != slow) {
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == null || slow == null) {
+                return null;
+            }
+        }
+        //知道fast和slow相遇，重置fast
+        fast = head;
+        while (fast != slow) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+        //直到再次相遇，即为入环节点
+        return fast;
+    }
 }
