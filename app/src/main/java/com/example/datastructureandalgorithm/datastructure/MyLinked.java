@@ -152,59 +152,72 @@ public class MyLinked {
 //            finalTest = finalTest.next;
 //        }
 
-//        System.out.println();
-//        System.out.println("-------合并两个有序链表-------");
-//        Node node1 = new Node(1);
-//        Node node3 = new Node(3);
-//        Node node5 = new Node(5);
-//        Node node7 = new Node(7);
-//        node1.next = node3;
-//        node3.next = node5;
-//        node5.next = node7;
-//        System.out.println("第一条链表: ");
-//        Node test = node1;
-//        while (test != null) {
-//            System.out.println("Node：" + test.value);
-//            test = test.next;
-//        }
-//
-//        Node node2 = new Node(3);
-//        Node node6 = new Node(6);
-//        Node node8 = new Node(8);
-//        node2.next = node6;
-//        node6.next = node8;
-//        System.out.println("第二条链表: ");
-//        Node test2 = node2;
-//        while (test2 != null) {
-//            System.out.println("Node：" + test2.value);
-//            test2 = test2.next;
-//        }
-//        System.out.println("合并: ");
-//        Node mergeNode = mergeLinkedList(node1, node2);
-//        while (mergeNode != null) {
-//            System.out.println("Node：" + mergeNode.value);
-//            mergeNode = mergeNode.next;
-//        }
-
-        System.out.println("-------判断是否有环-------");
-        Node node9 = new Node(9);
+        System.out.println();
+        System.out.println("-------合并两个有序链表-------");
         Node node1 = new Node(1);
         Node node3 = new Node(3);
         Node node5 = new Node(5);
         Node node7 = new Node(7);
-        node9.next = node1;
         node1.next = node3;
         node3.next = node5;
         node5.next = node7;
-        node7.next = node1;
-//        Node node = hasLoop(node1);
-        Node node2 = new Node(2);
-        Node node4 = new Node(4);
-        node2.next = node4;
-        node4.next = node5;
-//        System.out.println("结果：" + (node == null ? "无环" : ("有环: " + node.value)));
-        Node intersect = getIntersectNode(node1, node2);
-        System.out.println(intersect == null ? "无相交" : ("相交节点为：" + intersect.value));
+        System.out.println("第一条链表: ");
+        Node test = node1;
+        while (test != null) {
+            System.out.println("Node：" + test.value);
+            test = test.next;
+        }
+
+        Node node2 = new Node(3);
+        Node node6 = new Node(6);
+        Node node8 = new Node(8);
+        node2.next = node6;
+        node6.next = node8;
+        System.out.println("第二条链表: ");
+        Node test2 = node2;
+        while (test2 != null) {
+            System.out.println("Node：" + test2.value);
+            test2 = test2.next;
+        }
+        System.out.println("第三条链表: ");
+        Node node33 = new Node(4);
+        Node node77 = new Node(7);
+        Node node9 = new Node(9);
+        node33.next = node77;
+        node77.next = node9;
+        Node test3 = node33;
+        while (test3 != null) {
+            System.out.println("Node：" + test3.value);
+            test3 = test3.next;
+        }
+        System.out.println("合并: ");
+//        Node mergeNode = mergeLinkedList(node1, node2);
+        Node[] arr = {node1, node2, node33};
+        Node mergeNode = mergeKLists(arr, 0, arr.length - 1);
+        while (mergeNode != null) {
+            System.out.println("Node：" + mergeNode.value);
+            mergeNode = mergeNode.next;
+        }
+
+//        System.out.println("-------判断是否有环-------");
+//        Node node9 = new Node(9);
+//        Node node1 = new Node(1);
+//        Node node3 = new Node(3);
+//        Node node5 = new Node(5);
+//        Node node7 = new Node(7);
+//        node9.next = node1;
+//        node1.next = node3;
+//        node3.next = node5;
+//        node5.next = node7;
+//        node7.next = node1;
+////        Node node = hasLoop(node1);
+//        Node node2 = new Node(2);
+//        Node node4 = new Node(4);
+//        node2.next = node4;
+//        node4.next = node5;
+////        System.out.println("结果：" + (node == null ? "无环" : ("有环: " + node.value)));
+//        Node intersect = getIntersectNode(node1, node2);
+//        System.out.println(intersect == null ? "无相交" : ("相交节点为：" + intersect.value));
 
         //引用传递test
 //        System.out.println("--------------------");
@@ -622,7 +635,10 @@ public class MyLinked {
     //     2 -> 4 -> 6
     //合并为: 1 -> 2 ->3...
     @NonNull
-    public static Node mergeLinkedList(@NonNull Node head1, @NonNull Node head2) {
+    public static Node mergeLinkedList(Node head1, Node head2) {
+        if (head1 == null || head2 == null) {
+            return head1 == null ? head2 : head1;
+        }
         //先拿到最小的头节点，也就是合并之后的头节点
         Node head = head1.value < head2.value ? head1 : head2;
         //两条链表的起始遍历指针
@@ -633,13 +649,14 @@ public class MyLinked {
         while (cur1 != null && cur2 != null) {
             if (cur1.value < cur2.value) {
                 pre.next = cur1;
-                pre = cur1;
+//                pre = cur1;
                 cur1 = cur1.next;
             } else {
                 pre.next = cur2;
-                pre = cur2;
+//                pre = cur2;
                 cur2 = cur2.next;
             }
+            pre = pre.next;
         }
         //处理剩余无需比较的尾节点
         if (cur1 != null) pre.next = cur1;
@@ -647,6 +664,30 @@ public class MyLinked {
         //或：
 //        pre.next = cur1 != null? cur1 : cur2;
         return head;
+    }
+
+    //TODO 合并K个有序链表
+    //既然我们可以实现两条链表合并了，那么K条链表让它们两两合并到完成也就行了。
+    //继续优化的话就是通过分治来合并.
+    public static Node mergeKLists(Node[] list, int l, int r) {
+        //TODO 这里有个边界要处理
+//        if (l >= r) {
+//            return list[l];
+//        }
+        //我敲 出问题的原来不是这里自作多情了，单个数的时候就直接return掉了...T-T
+        //只单纯判断l>=r直接返回，是可能发生越界的。比如1 2 3 4 5 6，六个头节点划分
+        //第一次：1 2 3 | 4 5 6
+        //然后拆分左边: 1 2 | 3
+        //然后再正常拆分左边，然后拆分右边也就是3的时候，它的下标是2，那么取mid = (2+2)/2 = 2,
+        //此时左边l ~ mid就是2 ~ 2, mid+1 ~ r 就是 (2+1) ~ 2, 很明显越界了, 所以这里需要分开处理
+        if (l == r) return list[l];
+        if (l > r) return null;
+
+        // r/2 - l/2 + l = r/2 + l/2 = (r+l)/2
+        int mid = (r + l) >> 1;
+        Node head1 = mergeKLists(list, l, mid);
+        Node head2 = mergeKLists(list, mid + 1, r);
+        return mergeLinkedList(head1, head2);
     }
 
     //TODO 给定两个可能有环也可能无环的单链表，头节点head1和head2。

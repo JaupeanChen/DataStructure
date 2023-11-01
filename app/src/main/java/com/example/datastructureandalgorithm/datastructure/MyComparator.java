@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 
 public class MyComparator {
@@ -174,6 +175,18 @@ public class MyComparator {
         return head;
     }
 
+    //上面的方法其实还是用到了容器，也就导致了空间代价就不为O(1)，
+    //优化方向其实也很简单，既然我们可以实现两条链表合并了，那么K条
+    //链表让它们两两合并到完成也就行了。继续优化的话就是通过分治合并, 详见MyLinked
+//    public static Node mergeKLists(List<Node> list, int l, int r) {
+//        if (l >= r) {
+//            return null;
+//        }
+//        // r/2 - l/2 + l = r/2 + l/2 = (r+l)/2
+//        int mid = (r + l) >> 1;
+//        return
+//    }
+
     //自定义实现优先级队列
     public static class MyPriorityQueue {
         private Node[] arr;
@@ -191,7 +204,7 @@ public class MyComparator {
 
         public void add(Node e) {
             System.out.println("add新元素: " + e.value);
-            arr[cap - 1] = e;
+            arr[cap - 1] = e; //这边处理有问题，默认了先poll再add
 //            System.out.println("add完数组：");
 //            for (Node n : arr) {
 //                System.out.println("node: " + (n == null ? "null" : n.value));
