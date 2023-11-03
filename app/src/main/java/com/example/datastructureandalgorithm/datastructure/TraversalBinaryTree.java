@@ -5,32 +5,46 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-//        TreeNode node1 = new TreeNode(1);
-//        TreeNode node2 = new TreeNode(2);
-//        TreeNode node3 = new TreeNode(3);
-//        TreeNode node4 = new TreeNode(4);
-//        TreeNode node5 = new TreeNode(5);
-//        TreeNode node6 = new TreeNode(6);
-//        TreeNode node7 = new TreeNode(7);
-//        node1.left = node2;
-//        node1.right = node3;
-//        node2.left = node4;
-//        node2.right = node5;
-//        node3.left = node6;
-//        node3.right = node7;
+        TreeNode node1 = new TreeNode(1);
+        TreeNode node2 = new TreeNode(2);
+        TreeNode node3 = new TreeNode(3);
+        TreeNode node4 = new TreeNode(4);
+        TreeNode node5 = new TreeNode(5);
+        TreeNode node6 = new TreeNode(6);
+        TreeNode node7 = new TreeNode(7);
+        node1.left = node2;
+        node1.right = node3;
+        node2.left = node4;
+        node2.right = node5;
+        node3.left = node6;
+        node3.right = node7;
+        node5.right = new TreeNode(8);
+//        node5.left = new TreeNode(10);
+        print(node1);
 //        System.out.println("-----先序遍历-----");
 //        precedence(node1);
 //        System.out.println();
-//        System.out.println("-----中序遍历-----");
-//        inorder(node1);
+//        preByNonRecur(node1);
 //        System.out.println();
+
+        System.out.println("-----中序遍历-----");
+        inorder(node1);
+        System.out.println();
+        inorderByNonRecur(node1);
+        System.out.println();
+
 //        System.out.println("-----后序遍历-----");
 //        subsequent(node1);
 //        System.out.println();
+////        subByNonRecur(node1);
+//        sub2(node1);
+//        System.out.println();
+
 //        System.out.println("-----判断两棵树是否相同-----");
 //        TreeNode node11 = new TreeNode(1);
 //        TreeNode node22 = new TreeNode(2);
@@ -110,41 +124,41 @@ public class TraversalBinaryTree {
 //        boolean isBa = isBalancedBinaryTree(node1);
 //        System.out.println("结果：" + isBa);
 
-        System.out.println("-------判断是否为搜索二叉树-------");
-        TreeNode node8 = new TreeNode(8);
-        TreeNode node5 = new TreeNode(5);
-        TreeNode node3 = new TreeNode(3);
-        TreeNode node6 = new TreeNode(6);
-        TreeNode node1 = new TreeNode(1);
-        TreeNode node10 = new TreeNode(10);
-        TreeNode node9 = new TreeNode(9);
-        TreeNode node12 = new TreeNode(12);
-        node8.left = node5;
-        node8.right = node10;
-        node5.left = node3;
-        node5.right = node6;
-        node3.left = node1;
-        node10.left = node9;
-        node10.right = node12;
-//        node12.right = new TreeNode(7);
-        print(node8);
-        boolean isBST = isBST(node8);
-        System.out.println("结果：" + isBST);
-
-        System.out.println("-------是否含有期望值的路径和-------");
-        boolean has = hasSum(node8, 10);
-        System.out.println("结果：" + has);
-
-        System.out.println("-------收集达标路径和-------");
-        List<List<Integer>> lists = pathSum(node8, 17);
-        for (List<Integer> l : lists) {
-            System.out.print("{ ");
-            for (int e : l) {
-                System.out.print(e + " ");
-            }
-            System.out.print("}");
-            System.out.println();
-        }
+//        System.out.println("-------判断是否为搜索二叉树-------");
+//        TreeNode node8 = new TreeNode(8);
+//        TreeNode node5 = new TreeNode(5);
+//        TreeNode node3 = new TreeNode(3);
+//        TreeNode node6 = new TreeNode(6);
+//        TreeNode node1 = new TreeNode(1);
+//        TreeNode node10 = new TreeNode(10);
+//        TreeNode node9 = new TreeNode(9);
+//        TreeNode node12 = new TreeNode(12);
+//        node8.left = node5;
+//        node8.right = node10;
+//        node5.left = node3;
+//        node5.right = node6;
+//        node3.left = node1;
+//        node10.left = node9;
+//        node10.right = node12;
+////        node12.right = new TreeNode(7);
+//        print(node8);
+//        boolean isBST = isBST(node8);
+//        System.out.println("结果：" + isBST);
+//
+//        System.out.println("-------是否含有期望值的路径和-------");
+//        boolean has = hasSum(node8, 10);
+//        System.out.println("结果：" + has);
+//
+//        System.out.println("-------收集达标路径和-------");
+//        List<List<Integer>> lists = pathSum(node8, 17);
+//        for (List<Integer> l : lists) {
+//            System.out.print("{ ");
+//            for (int e : l) {
+//                System.out.print(e + " ");
+//            }
+//            System.out.print("}");
+//            System.out.println();
+//        }
 
 
 //        System.out.println();
@@ -269,6 +283,22 @@ public class TraversalBinaryTree {
         precedence(node.right);
     }
 
+    //非递归实现先序遍历
+    public static void preByNonRecur(TreeNode head) {
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(head);
+        while (!stack.isEmpty()) {
+            head = stack.pop();
+            System.out.print(head.value + "");
+            if (head.right != null) {
+                stack.push(head.right);
+            }
+            if (head.left != null) {
+                stack.push(head.left);
+            }
+        }
+    }
+
     //中序遍历：左，头，右
     public static void inorder(TreeNode node) {
         if (node == null) return;
@@ -277,12 +307,85 @@ public class TraversalBinaryTree {
         inorder(node.right);
     }
 
+    //非递归实现中序遍历
+    //有左压左, 无左弹出，然后再压右
+    //先入主head，压左半边，然后弹出主head再压右半边
+    public static void inorderByNonRecur(TreeNode head) {
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(head);
+        TreeNode rootLeft = null;
+        boolean isFirst = true;
+        TreeNode last = null;
+        while (!stack.isEmpty()) {
+            TreeNode temp = stack.peek(); //先看看当前节点，不出栈
+            if (temp.left != null && temp.left != last && temp.left != head && temp.left != rootLeft) {  //有左压左
+                stack.push(temp.left);
+            } else {
+                if (isFirst) {
+                    rootLeft = head.left != null ? head.left : null;  //这里还需要多保存一个根节点的左子树，保证回退出栈的时候根节点能正常弹出
+                    isFirst = false;
+                }
+                TreeNode pop = stack.pop();
+                System.out.print(pop.value);
+                last = pop;
+                if (pop.right != null) {
+                    stack.push(pop.right);
+                    head = pop; //TODO 一旦右树有节点，就把当前节点记录起来，不然下次弹出last会被该右树节点覆盖。这不就是算法的魅力！想了一天多！！
+                }
+            }
+        }
+    }
+
     //后序遍历：左，右，头
     public static void subsequent(TreeNode node) {
         if (node == null) return;
         subsequent(node.left);
         subsequent(node.right);
         System.out.print(node.value + "");
+    }
+
+    //非递归实现后序遍历
+    //一种简单的方法就是，既然我们已经实现了先序遍历，压栈方式是头右左 =》 头左右，
+    //那么我们先实现头右左，然后统一压到另一个栈里，等结束了再统一弹出来，不就是左右头的顺序
+    public static void subByNonRecur(TreeNode head) {
+        Stack<TreeNode> stack = new Stack<>();
+        Stack<TreeNode> container = new Stack<>();
+        stack.push(head);
+        while (!stack.isEmpty()) {
+            TreeNode pop = stack.pop();
+            container.add(pop);
+            if (pop.left != null) {
+                stack.push(pop.left);
+            }
+            if (pop.right != null) {
+                stack.push(pop.right);
+            }
+        }
+        //结束之后统一弹出
+        while (!container.isEmpty()) {
+            TreeNode pop = container.pop();
+            System.out.print(pop.value);
+        }
+    }
+
+    //单个栈实现后序遍历
+    //芜湖，感觉思路飞升
+    public static void sub2(TreeNode head) {
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(head);
+        while (!stack.isEmpty()) {
+            TreeNode peek = stack.peek();
+            //每次循环只做push或pop其中一个操作
+            if (peek.left != null && peek.left != head && peek.right != head) { //有左加左
+                stack.push(peek.left);
+            } else if (peek.right != null && peek.right != head) { //有右加右
+                stack.push(peek.right);
+            } else { //弹出
+                TreeNode pop = stack.pop();
+                System.out.print(pop.value);
+                head = pop; //关键点，把弹出的节点记录起来
+            }
+        }
     }
 
     //递归序
