@@ -24,7 +24,7 @@ public class TraversalBinaryTree {
         node3.left = node6;
         node3.right = node7;
         node5.right = new TreeNode(8);
-//        node5.left = new TreeNode(10);
+        node5.left = new TreeNode(10);
         print(node1);
 //        System.out.println("-----先序遍历-----");
 //        precedence(node1);
@@ -36,6 +36,8 @@ public class TraversalBinaryTree {
         inorder(node1);
         System.out.println();
         inorderByNonRecur(node1);
+        System.out.println();
+        inorderByNonRecur2(node1);
         System.out.println();
 
 //        System.out.println("-----后序遍历-----");
@@ -331,6 +333,24 @@ public class TraversalBinaryTree {
                 if (pop.right != null) {
                     stack.push(pop.right);
                     head = pop; //TODO 一旦右树有节点，就把当前节点记录起来，不然下次弹出last会被该右树节点覆盖。这不就是算法的魅力！想了一天多！！
+                }
+            }
+        }
+    }
+
+    //非递归实现中序遍历
+    //优化版本
+    public static void inorderByNonRecur2(TreeNode cur) {
+        if (cur != null) {
+            Stack<TreeNode> stack = new Stack<>();
+            while (!stack.isEmpty() || cur != null) { //这里多加一个cur不为空的判别条件
+                if (cur != null) {  //还是一样，左子树不为空就一直入栈
+                    stack.push(cur);
+                    cur = cur.left; //更新cur
+                } else {  //直到左子树为空, 开始弹出
+                    TreeNode pop = stack.pop();
+                    System.out.print(pop.value);
+                    cur = pop.right;  //这个时候cur就来到弹出节点的右子树
                 }
             }
         }
