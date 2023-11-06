@@ -10,35 +10,36 @@ import java.util.Stack;
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-        TreeNode node1 = new TreeNode(1);
-        TreeNode node2 = new TreeNode(2);
-        TreeNode node3 = new TreeNode(3);
-        TreeNode node4 = new TreeNode(4);
-        TreeNode node5 = new TreeNode(5);
-        TreeNode node6 = new TreeNode(6);
-        TreeNode node7 = new TreeNode(7);
-        node1.left = node2;
-        node1.right = node3;
-        node2.left = node4;
-        node2.right = node5;
-        node3.left = node6;
-        node3.right = node7;
-        node5.right = new TreeNode(8);
-        node5.left = new TreeNode(10);
-        print(node1);
+//        TreeNode node1 = new TreeNode(1);
+//        TreeNode node2 = new TreeNode(2);
+//        TreeNode node3 = new TreeNode(3);
+//        TreeNode node4 = new TreeNode(4);
+//        TreeNode node5 = new TreeNode(5);
+//        TreeNode node6 = new TreeNode(6);
+//        TreeNode node7 = new TreeNode(7);
+//        node1.left = node2;
+//        node1.right = node3;
+//        node2.left = node4;
+//        node2.right = node5;
+//        node3.left = node6;
+//        node3.right = node7;
+//        node5.right = new TreeNode(8);
+//        node5.left = new TreeNode(10);
+//        print(node1);
+
 //        System.out.println("-----先序遍历-----");
 //        precedence(node1);
 //        System.out.println();
 //        preByNonRecur(node1);
 //        System.out.println();
 
-        System.out.println("-----中序遍历-----");
-        inorder(node1);
-        System.out.println();
-        inorderByNonRecur(node1);
-        System.out.println();
-        inorderByNonRecur2(node1);
-        System.out.println();
+//        System.out.println("-----中序遍历-----");
+//        inorder(node1);
+//        System.out.println();
+//        inorderByNonRecur(node1);
+//        System.out.println();
+//        inorderByNonRecur2(node1);
+//        System.out.println();
 
 //        System.out.println("-----后序遍历-----");
 //        subsequent(node1);
@@ -168,6 +169,36 @@ public class TraversalBinaryTree {
 //        System.out.println();
 //        inorder(treeNode);
 //        System.out.println();
+
+        System.out.println("-------多叉树转二叉树-------");
+        XNode xNode5 = new XNode(5);
+        XNode xNode6 = new XNode(6);
+        List<XNode> children = new ArrayList<>();
+        children.add(xNode5);
+        children.add(xNode6);
+        XNode xNode2 = new XNode(2, children);
+        List<XNode> children2 = new ArrayList<>();
+        children2.add(xNode2);
+        children2.add(new XNode(3));
+        children2.add(new XNode(4));
+        XNode xNode = new XNode(1, children2);
+        TreeNode treeNode = encode(xNode);
+        print(treeNode);
+        System.out.println("---反解码为多叉树---");
+        XNode decode = decode(treeNode);
+        System.out.println(decode.value + "子树为：");
+        for (XNode x : decode.children) {
+            if (x.children != null) {
+                System.out.print(x.value + "子树为：");
+                for (XNode c : x.children) {
+                    System.out.print(c.value + " ");
+                }
+            } else {
+                System.out.print(x.value + " ");
+            }
+            System.out.print("; ");
+        }
+        System.out.println();
     }
 
     public static class TreeNode {
@@ -660,6 +691,74 @@ public class TraversalBinaryTree {
 
     public static List<Integer> copyList(List<Integer> origin) {
         return new ArrayList<>(origin);
+    }
+
+    //TODO 多叉树转二叉树，并能够还原回原多叉树
+    //实现思路就是子节点挂在父节点左树（及其右子树右子树...)，其实也就是通过父节点的左树，将整个子树链串起来, 保证子树可寻并唯一
+    //编码
+    public static TreeNode encode(XNode root) {
+        if (root == null) return null;
+        TreeNode head = new TreeNode(root.value);
+        head.left = en(root.children);
+        return head;
+    }
+
+    public static TreeNode en(List<XNode> children) {
+        if (children == null || children.isEmpty()) return null;
+        //取子树中第一个子树作为左节点
+        TreeNode leftHead = null;
+        TreeNode last = null;
+        for (XNode xNode : children) {
+            TreeNode child = new TreeNode(xNode.value);
+            child.left = en(xNode.children);
+            if (leftHead == null) {
+                leftHead = child;
+            } else {
+                last.right = child;
+            }
+            last = child;
+        }
+        return leftHead;
+    }
+
+    //解码
+    public static XNode decode(TreeNode root) {
+        if (root == null) return null;
+        XNode head = new XNode(root.value);
+        head.children = compose(root.left);
+        return head;
+    }
+
+    public static List<XNode> compose(TreeNode node) {
+        if (node == null) return null;
+        List<XNode> children = new ArrayList<>();
+        while (node != null) {
+            XNode child = new XNode(node.value);
+            child.children = compose(node.left);
+            children.add(child);
+            node = node.right;
+        }
+        return children;
+    }
+
+
+    //多叉树结构
+    public static class XNode {
+        int value;
+        List<XNode> children;
+
+        public XNode(int value) {
+            this.value = value;
+        }
+
+        public XNode(int value, List<XNode> children) {
+            this.value = value;
+            this.children = children;
+        }
+
+        public void setChildren(List<XNode> children) {
+            this.children = children;
+        }
     }
 
 }
