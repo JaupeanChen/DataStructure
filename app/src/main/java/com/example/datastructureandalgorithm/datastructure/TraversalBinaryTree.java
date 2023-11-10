@@ -5,27 +5,30 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-//        TreeNode node1 = new TreeNode(1);
-//        TreeNode node2 = new TreeNode(2);
-//        TreeNode node3 = new TreeNode(3);
-//        TreeNode node4 = new TreeNode(4);
-//        TreeNode node5 = new TreeNode(5);
-//        TreeNode node6 = new TreeNode(6);
-//        TreeNode node7 = new TreeNode(7);
-//        node1.left = node2;
-//        node1.right = node3;
-//        node2.left = node4;
-//        node2.right = node5;
-//        node3.left = node6;
-//        node3.right = node7;
-//        node5.right = new TreeNode(8);
-//        node5.left = new TreeNode(10);
-//        print(node1);
+        TreeNode node1 = new TreeNode(1);
+        TreeNode node2 = new TreeNode(2);
+        TreeNode node3 = new TreeNode(3);
+        TreeNode node4 = new TreeNode(4);
+        TreeNode node5 = new TreeNode(5);
+        TreeNode node6 = new TreeNode(6);
+        TreeNode node7 = new TreeNode(7);
+        node1.left = node2;
+        node1.right = node3;
+        node2.left = node4;
+        node2.right = node5;
+        node3.left = node6;
+        node3.right = node7;
+        node5.right = new TreeNode(8);
+        node5.left = new TreeNode(10);
+        print(node1);
+        int maxWidth = maxWidth(node1);
+        System.out.println("最大宽度为: " + maxWidth);
 
 //        System.out.println("-----先序遍历-----");
 //        precedence(node1);
@@ -170,35 +173,35 @@ public class TraversalBinaryTree {
 //        inorder(treeNode);
 //        System.out.println();
 
-        System.out.println("-------多叉树转二叉树-------");
-        XNode xNode5 = new XNode(5);
-        XNode xNode6 = new XNode(6);
-        List<XNode> children = new ArrayList<>();
-        children.add(xNode5);
-        children.add(xNode6);
-        XNode xNode2 = new XNode(2, children);
-        List<XNode> children2 = new ArrayList<>();
-        children2.add(xNode2);
-        children2.add(new XNode(3));
-        children2.add(new XNode(4));
-        XNode xNode = new XNode(1, children2);
-        TreeNode treeNode = encode(xNode);
-        print(treeNode);
-        System.out.println("---反解码为多叉树---");
-        XNode decode = decode(treeNode);
-        System.out.println(decode.value + "子树为：");
-        for (XNode x : decode.children) {
-            if (x.children != null) {
-                System.out.print(x.value + "子树为：");
-                for (XNode c : x.children) {
-                    System.out.print(c.value + " ");
-                }
-            } else {
-                System.out.print(x.value + " ");
-            }
-            System.out.print("; ");
-        }
-        System.out.println();
+//        System.out.println("-------多叉树转二叉树-------");
+//        XNode xNode5 = new XNode(5);
+//        XNode xNode6 = new XNode(6);
+//        List<XNode> children = new ArrayList<>();
+//        children.add(xNode5);
+//        children.add(xNode6);
+//        XNode xNode2 = new XNode(2, children);
+//        List<XNode> children2 = new ArrayList<>();
+//        children2.add(xNode2);
+//        children2.add(new XNode(3));
+//        children2.add(new XNode(4));
+//        XNode xNode = new XNode(1, children2);
+//        TreeNode treeNode = encode(xNode);
+//        print(treeNode);
+//        System.out.println("---反解码为多叉树---");
+//        XNode decode = decode(treeNode);
+//        System.out.println(decode.value + "子树为：");
+//        for (XNode x : decode.children) {
+//            if (x.children != null) {
+//                System.out.print(x.value + "子树为：");
+//                for (XNode c : x.children) {
+//                    System.out.print(c.value + " ");
+//                }
+//            } else {
+//                System.out.print(x.value + " ");
+//            }
+//            System.out.print("; ");
+//        }
+//        System.out.println();
     }
 
     public static class TreeNode {
@@ -691,6 +694,39 @@ public class TraversalBinaryTree {
 
     public static List<Integer> copyList(List<Integer> origin) {
         return new ArrayList<>(origin);
+    }
+
+    //TODO 求一颗二叉树最大宽度
+    public static int maxWidth(TreeNode head) {
+        if (head == null) return 0;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(head);
+        //当前层结束节点
+        TreeNode curEnd = head;
+        //下一层结束节点(也就是说我们需要提前保存下一层的结束节点)
+        TreeNode nextEnd = null;
+        int maxWidth = 0;
+        int count = 0;
+        while (!queue.isEmpty()) {
+            TreeNode poll = queue.poll();
+            if (poll == null) break;
+            if (poll.left != null) {
+                queue.add(poll.left);
+                nextEnd = poll.left;
+            }
+            if (poll.right != null) {
+                queue.add(poll.right);
+                nextEnd = poll.right;
+            }
+            count++;
+            //当前层遍历结束
+            if (poll == curEnd) {
+                maxWidth = Math.max(maxWidth, count);
+                count = 0;
+                curEnd = nextEnd;
+            }
+        }
+        return maxWidth;
     }
 
     //TODO 多叉树转二叉树，并能够还原回原多叉树
