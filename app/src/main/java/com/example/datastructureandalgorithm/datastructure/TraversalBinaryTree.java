@@ -11,24 +11,24 @@ import java.util.Stack;
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-        TreeNode node1 = new TreeNode(1);
-        TreeNode node2 = new TreeNode(2);
-        TreeNode node3 = new TreeNode(3);
-        TreeNode node4 = new TreeNode(4);
-        TreeNode node5 = new TreeNode(5);
-        TreeNode node6 = new TreeNode(6);
-        TreeNode node7 = new TreeNode(7);
-        node1.left = node2;
-        node1.right = node3;
-        node2.left = node4;
-        node2.right = node5;
-        node3.left = node6;
-        node3.right = node7;
-        node5.right = new TreeNode(8);
-        node5.left = new TreeNode(10);
-        print(node1);
-        int maxWidth = maxWidth(node1);
-        System.out.println("最大宽度为: " + maxWidth);
+//        TreeNode node1 = new TreeNode(1);
+//        TreeNode node2 = new TreeNode(2);
+//        TreeNode node3 = new TreeNode(3);
+//        TreeNode node4 = new TreeNode(4);
+//        TreeNode node5 = new TreeNode(5);
+//        TreeNode node6 = new TreeNode(6);
+//        TreeNode node7 = new TreeNode(7);
+//        node1.left = node2;
+//        node1.right = node3;
+//        node2.left = node4;
+//        node2.right = node5;
+//        node3.left = node6;
+//        node3.right = node7;
+//        node5.right = new TreeNode(8);
+//        node5.left = new TreeNode(10);
+//        print(node1);
+//        int maxWidth = maxWidth(node1);
+//        System.out.println("最大宽度为: " + maxWidth);
 
 //        System.out.println("-----先序遍历-----");
 //        precedence(node1);
@@ -202,6 +202,9 @@ public class TraversalBinaryTree {
 //            System.out.print("; ");
 //        }
 //        System.out.println();
+
+        System.out.println("-------折纸问题-------");
+        printPaperFold(3);
     }
 
     public static class TreeNode {
@@ -777,7 +780,6 @@ public class TraversalBinaryTree {
         return children;
     }
 
-
     //多叉树结构
     public static class XNode {
         int value;
@@ -795,6 +797,27 @@ public class TraversalBinaryTree {
         public void setChildren(List<XNode> children) {
             this.children = children;
         }
+    }
+
+    //TODO 折纸问题: 将一个长条纸对折，中间会出现一条凹痕，再对折的话，第一条凹痕上面会出现一条凹痕，下面会出现一条凸痕，
+    //即此时折痕为：凹 凹 凸。给定一个输入参数N，代表纸条从下往上连续对折N次，从上往下依次打印折痕。
+    //实践可以发现，每次对折折痕会是2的指数型增长，那么再经过联想，可以和二叉树结构对上，例如折三次：
+    //             凹
+    //     凹               凸
+    //凹        凸      凹        凸
+    //那么就可以通过二叉树来解了，顺序也就是中序遍历，真的精妙！
+    public static void printPaperFold(int times) {
+        if (times == 0) return;
+        process(times, true);
+        System.out.println();
+    }
+
+    public static void process(int times, boolean fold) {
+        if (times == 0) return;
+        times--;
+        process(times, true);
+        System.out.print(fold ? "凹" : "凸");
+        process(times, false);
     }
 
 }
