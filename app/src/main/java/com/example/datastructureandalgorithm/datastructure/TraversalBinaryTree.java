@@ -11,22 +11,26 @@ import java.util.Stack;
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-//        TreeNode node1 = new TreeNode(1);
-//        TreeNode node2 = new TreeNode(2);
-//        TreeNode node3 = new TreeNode(3);
-//        TreeNode node4 = new TreeNode(4);
-//        TreeNode node5 = new TreeNode(5);
-//        TreeNode node6 = new TreeNode(6);
-//        TreeNode node7 = new TreeNode(7);
-//        node1.left = node2;
-//        node1.right = node3;
-//        node2.left = node4;
-//        node2.right = node5;
-//        node3.left = node6;
-//        node3.right = node7;
+        TreeNode node1 = new TreeNode(1);
+        TreeNode node2 = new TreeNode(2);
+        TreeNode node3 = new TreeNode(3);
+        TreeNode node4 = new TreeNode(4);
+        TreeNode node5 = new TreeNode(5);
+        TreeNode node6 = new TreeNode(6);
+        TreeNode node7 = new TreeNode(7);
+        node1.left = node2;
+        node1.right = node3;
+        node2.left = node4;
+        node2.right = node5;
+        node3.left = node6;
+        node3.right = node7;
+        node4.left = new TreeNode(8);
 //        node5.right = new TreeNode(8);
 //        node5.left = new TreeNode(10);
-//        print(node1);
+        print(node1);
+        boolean cbt = isCBT(node1);
+        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
+
 //        int maxWidth = maxWidth(node1);
 //        System.out.println("最大宽度为: " + maxWidth);
 
@@ -203,8 +207,8 @@ public class TraversalBinaryTree {
 //        }
 //        System.out.println();
 
-        System.out.println("-------折纸问题-------");
-        printPaperFold(3);
+//        System.out.println("-------折纸问题-------");
+//        printPaperFold(3);
     }
 
     public static class TreeNode {
@@ -818,6 +822,41 @@ public class TraversalBinaryTree {
         process(times, true);
         System.out.print(fold ? "凹" : "凸");
         process(times, false);
+    }
+
+    //TODO 判断是否是完全二叉树
+    //这里先说满二叉树：一棵深度为k且有2的k次方减1个结点的二叉树称为满二叉树。
+    //如果对满二叉树的结点进行编号, 约定编号从根结点起, 自上而下, 自左而右。则深度为k的, 有n个结点的二叉树,
+    //当且仅当其每一个结点都与深度为k的满二叉树中编号从1至n的结点一一对应时, 称之为完全二叉树。
+    //很明显，满二叉树是完全二叉树的一种特殊形态。
+    public static boolean isCBT(TreeNode head) {
+        //空树的话我们就定义为非完全二叉树
+        if (head == null) return false;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(head);
+        boolean mustLeaf = false;
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            assert node != null;
+            //发现结构不对，直接返回false
+            if (node.left == null && node.right != null) {
+                return false;
+            }
+            if (mustLeaf && node.left != null) {
+                return false;
+            }
+            if (node.left != null) {
+                queue.add(node.left);
+            }
+            if (node.right != null) {
+                queue.add(node.right);
+            }
+            //当子树不满的情况下，做个标记，也意味着后续的节点就不能有子树了，必须为叶节点。
+            if (node.left == null || node.right == null) {
+                mustLeaf = true;
+            }
+        }
+        return true;
     }
 
 }
