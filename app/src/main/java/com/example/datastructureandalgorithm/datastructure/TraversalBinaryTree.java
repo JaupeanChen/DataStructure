@@ -28,8 +28,12 @@ public class TraversalBinaryTree {
 //        node5.right = new TreeNode(8);
 //        node5.left = new TreeNode(10);
         print(node1);
-        boolean cbt = isCBT(node1);
-        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
+//        boolean cbt = isCBT(node1);
+//        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
+
+        System.out.println("------最大距离-------");
+        int distance = maxDistance(node1);
+        System.out.println("最大距离为：" + distance);
 
 //        int maxWidth = maxWidth(node1);
 //        System.out.println("最大宽度为: " + maxWidth);
@@ -857,6 +861,37 @@ public class TraversalBinaryTree {
             }
         }
         return true;
+    }
+
+    //TODO 求一颗二叉树的最大距离
+    //通过递归思路拆分，最长的情况为:
+    //1.左树最长 2.右树最长 3.左树经过父节点再到右树最长
+    public static int maxDistance(TreeNode head) {
+        return processDis(head).maxDistance;
+    }
+
+    public static class DisInfo {
+        int maxDistance; //最长路径
+        int height; //当前高度
+
+        public DisInfo(int distance, int height) {
+            this.maxDistance = distance;
+            this.height = height;
+        }
+    }
+
+    public static DisInfo processDis(TreeNode node) {
+        if (node == null) {
+            return new DisInfo(0, 0);
+        }
+        DisInfo leftInfo = processDis(node.left);
+        DisInfo rightInfo = processDis(node.right);
+        int d1 = leftInfo.maxDistance;
+        int d2 = rightInfo.maxDistance;
+        int d3 = leftInfo.height + rightInfo.height + 1;
+        int dis = Math.max(Math.max(d1, d2), d3);
+        int height = Math.max(leftInfo.height, rightInfo.height) + 1;
+        return new DisInfo(dis, height);
     }
 
 }
