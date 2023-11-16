@@ -24,7 +24,7 @@ public class TraversalBinaryTree {
         node2.right = node5;
         node3.left = node6;
         node3.right = node7;
-        node4.left = new TreeNode(8);
+//        node4.left = new TreeNode(8);
 //        node5.right = new TreeNode(8);
 //        node5.left = new TreeNode(10);
         print(node1);
@@ -34,6 +34,10 @@ public class TraversalBinaryTree {
         System.out.println("------最大距离-------");
         int distance = maxDistance(node1);
         System.out.println("最大距离为：" + distance);
+
+        System.out.println("------是否为满二叉树-------");
+        boolean fbt = isFBT(node1);
+        System.out.println("结果: " + fbt);
 
 //        int maxWidth = maxWidth(node1);
 //        System.out.println("最大宽度为: " + maxWidth);
@@ -861,6 +865,35 @@ public class TraversalBinaryTree {
             }
         }
         return true;
+    }
+
+    //TODO 判断是否是满二叉树
+    //一棵深度为k且有2的k次方减1个结点的二叉树称为满二叉树。
+    public static boolean isFBT(TreeNode head) {
+        if (head == null) return false;
+        FBTInfo info = processFBT(head);
+        return ((1 << info.depth) - 1) == info.allChildren;
+    }
+
+    public static FBTInfo processFBT(TreeNode node) {
+        if (node == null) {
+            return new FBTInfo(0, 0);
+        }
+        FBTInfo leftInfo = processFBT(node.left);
+        FBTInfo rightInfo = processFBT(node.right);
+        int depth = Math.max(leftInfo.depth, rightInfo.depth) + 1;
+        int children = leftInfo.allChildren + rightInfo.allChildren + 1;
+        return new FBTInfo(depth, children);
+    }
+
+    public static class FBTInfo {
+        int depth;
+        int allChildren;
+
+        public FBTInfo(int depth, int allChildren) {
+            this.depth = depth;
+            this.allChildren = allChildren;
+        }
     }
 
     //TODO 求一颗二叉树的最大距离
