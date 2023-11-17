@@ -11,33 +11,33 @@ import java.util.Stack;
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-        TreeNode node1 = new TreeNode(1);
-        TreeNode node2 = new TreeNode(2);
-        TreeNode node3 = new TreeNode(3);
-        TreeNode node4 = new TreeNode(4);
-        TreeNode node5 = new TreeNode(5);
-        TreeNode node6 = new TreeNode(6);
-        TreeNode node7 = new TreeNode(7);
-        node1.left = node2;
-        node1.right = node3;
-        node2.left = node4;
-        node2.right = node5;
-        node3.left = node6;
-        node3.right = node7;
-//        node4.left = new TreeNode(8);
-//        node5.right = new TreeNode(8);
-//        node5.left = new TreeNode(10);
-        print(node1);
+//        TreeNode node1 = new TreeNode(1);
+//        TreeNode node2 = new TreeNode(2);
+//        TreeNode node3 = new TreeNode(3);
+//        TreeNode node4 = new TreeNode(4);
+//        TreeNode node5 = new TreeNode(5);
+//        TreeNode node6 = new TreeNode(6);
+//        TreeNode node7 = new TreeNode(7);
+//        node1.left = node2;
+//        node1.right = node3;
+//        node2.left = node4;
+//        node2.right = node5;
+//        node3.left = node6;
+//        node3.right = node7;
+////        node4.left = new TreeNode(8);
+////        node5.right = new TreeNode(8);
+////        node5.left = new TreeNode(10);
+//        print(node1);
 //        boolean cbt = isCBT(node1);
 //        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
-
-        System.out.println("------最大距离-------");
-        int distance = maxDistance(node1);
-        System.out.println("最大距离为：" + distance);
-
-        System.out.println("------是否为满二叉树-------");
-        boolean fbt = isFBT(node1);
-        System.out.println("结果: " + fbt);
+//
+//        System.out.println("------最大距离-------");
+//        int distance = maxDistance(node1);
+//        System.out.println("最大距离为：" + distance);
+//
+//        System.out.println("------是否为满二叉树-------");
+//        boolean fbt = isFBT(node1);
+//        System.out.println("结果: " + fbt);
 
 //        int maxWidth = maxWidth(node1);
 //        System.out.println("最大宽度为: " + maxWidth);
@@ -217,6 +217,23 @@ public class TraversalBinaryTree {
 
 //        System.out.println("-------折纸问题-------");
 //        printPaperFold(3);
+
+        TreeNode node6 = new TreeNode(6);
+        TreeNode node8 = new TreeNode(8);
+        TreeNode node3 = new TreeNode(3);
+        TreeNode node4 = new TreeNode(4);
+        TreeNode node5 = new TreeNode(5);
+        TreeNode node9 = new TreeNode(9);
+        TreeNode node7 = new TreeNode(7);
+        node6.left = node4;
+        node4.left = node3;
+        node4.right = node5;
+        node6.right = node8;
+        node8.left = node7;
+        node8.right = node9;
+        print(node6);
+        int maxBSTSize = maxBSTSize(node6);
+        System.out.println("最大搜索树节点数为：" + maxBSTSize);
     }
 
     public static class TreeNode {
@@ -925,6 +942,62 @@ public class TraversalBinaryTree {
         int dis = Math.max(Math.max(d1, d2), d3);
         int height = Math.max(leftInfo.height, rightInfo.height) + 1;
         return new DisInfo(dis, height);
+    }
+
+    //TODO 在一颗二叉树中找到以某节点为头的数量最大的搜索二叉树, 返回最大值。
+    public static int maxBSTSize(TreeNode head) {
+        if (head == null) return 0;
+        return processBST(head).maxBSTSize;
+    }
+
+    public static BSTSizeInfo processBST(TreeNode node) {
+        if (node == null) {
+//            return new BSTSizeInfo(0, 0, 0);
+            //这边直接封装Info返回时不合适的，因为max和min不能以0返回，有可能别的节点为负数，所以返null
+            return null;
+        }
+        BSTSizeInfo leftInfo = processBST(node.left);
+        BSTSizeInfo rightInfo = processBST(node.right);
+        int max = node.value;
+        int min = node.value;
+        if (leftInfo != null) {
+            max = Math.max(leftInfo.max, max);
+            min = Math.min(leftInfo.min, min);
+        }
+        if (rightInfo != null) {
+            max = Math.max(rightInfo.max, max);
+            min = Math.min(rightInfo.min, min);
+        }
+        int p1 = leftInfo == null ? 0 : leftInfo.maxBSTSize;
+        int p2 = rightInfo == null ? 0 : rightInfo.maxBSTSize;
+        int p3 = 0;
+        boolean moreThanLeft = leftInfo == null || (node.value > leftInfo.max);
+        boolean lessThanRight = rightInfo == null || (node.value < rightInfo.min);
+        boolean isLeftBST = leftInfo == null || leftInfo.isBST;
+        boolean isRightBST = rightInfo == null || rightInfo.isBST;
+        boolean isBST = false;
+        //先判断是否为搜索二叉树，再去更新maxBSTSize
+        if (moreThanLeft && lessThanRight && isLeftBST && isRightBST) {
+            //这里当左(右)子树为平衡树的时候，其实maxBSTSize的值就是它左右的节点
+            p3 = p1 + p2 + 1;
+            isBST = true;
+        }
+        int maxBSTSize = Math.max(Math.max(p1, p2), p3);
+        return new BSTSizeInfo(isBST, maxBSTSize, max, min);
+    }
+
+    public static class BSTSizeInfo {
+        boolean isBST;
+        int maxBSTSize;
+        int max;
+        int min;
+
+        public BSTSizeInfo(boolean isBST, int maxBSTSize, int max, int min) {
+            this.isBST = isBST;
+            this.maxBSTSize = maxBSTSize;
+            this.max = max;
+            this.min = min;
+        }
     }
 
 }
