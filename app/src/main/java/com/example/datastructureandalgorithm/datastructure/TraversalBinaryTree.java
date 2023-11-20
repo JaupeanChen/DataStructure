@@ -234,6 +234,12 @@ public class TraversalBinaryTree {
         print(node6);
         int maxBSTSize = maxBSTSize(node6);
         System.out.println("最大搜索树节点数为：" + maxBSTSize);
+
+        System.out.println("-----最大路径和-----");
+        int maxPathSum = maxPathSum(node6);
+        System.out.println("最大路径和为：" + maxPathSum);
+        int maxPathSum2 = maxPathSum2(node6);
+        System.out.println("最大路径和为：" + maxPathSum2);
     }
 
     public static class TreeNode {
@@ -1000,4 +1006,103 @@ public class TraversalBinaryTree {
         }
     }
 
+    //TODO 二叉树中的最大路径和(LeetCode LCR 051)
+    //路径 被定义为一条从树中任意节点出发，沿父节点-子节点连接，达到任意节点的序列。同一个节点在一条路径序列中 至多出现一次。
+    //该路径至少包含一个节点，且不一定经过根节点。
+    //路径和 是路径中各节点值的总和
+
+    //自解
+    public static int maxPathSum(TreeNode root) {
+        if (root == null) return 0;
+        if (root.left == null && root.right == null) {
+            return root.value;
+        }
+        return processSum(root).maxSum;
+    }
+
+    public static Info processSum(TreeNode node) {
+        if (node == null) {
+//            return new Info(0, 0, 0);
+            //这里不能直接返回Info，空节点是不能直接参与进来的
+            return null;
+        }
+        Info leftInfo = processSum(node.left);
+        Info rightInfo = processSum(node.right);
+        int pathSum = node.value;
+        int selfSum = node.value;
+        if (leftInfo != null) {
+            pathSum = Math.max((leftInfo.pathSum + node.value), pathSum);
+            selfSum += leftInfo.pathSum;
+        }
+        if (rightInfo != null) {
+            pathSum = Math.max((rightInfo.pathSum + node.value), pathSum);
+            selfSum += rightInfo.pathSum;
+        }
+        int maxSum = Math.max(node.value, Math.max(pathSum, selfSum));
+        if (leftInfo != null) {
+            maxSum = Math.max(maxSum, leftInfo.maxSum);
+        }
+        if (rightInfo != null) {
+            maxSum = Math.max(maxSum, rightInfo.maxSum);
+        }
+        return new Info(selfSum, pathSum, maxSum);
+    }
+
+    public static class Info {
+        int selfSum; //过当前父节点最大路径和值
+        int pathSum; //左右两条路径取最值
+        int maxSum; //最值
+
+        public Info(int selfSum, int pathSum, int maxSum) {
+            this.selfSum = selfSum;
+            this.pathSum = pathSum;
+            this.maxSum = maxSum;
+        }
+    }
+
+    //再来看看LeetCode的官方题解
+    //一样的思路，通过递归来处理，计算二叉树中的一个节点的最大贡献值。这里引入了最大贡献值这个概念，就是在
+    //以该节点为根节点的子树中寻找以该节点为起点的一条路径，使得该路径上的节点值之和最大。
+    //空节点的最大贡献值等于0; 非空节点的最大贡献值等于节点值 与其子节点中的 最大贡献值之和（对于叶节点而言，最大贡献值等于节点值）。
+    //非空节点时，也就是说需要拿到子节点自己的最大贡献值之和。
+    //例如：[-10, 9, 20, null, null, 15, 7]这棵树，叶节点9、15、7 的最大贡献值分别为 9、15、7。
+    //得到叶节点的最大贡献值之后，再计算非叶节点的最大贡献值。节点 20 的最大贡献值等于20 + max(15, 7) = 35, 节点-10的
+    //最大贡献值等于-10 + max(9, 35), 其中35也就是它的子节点20的最大贡献值, 这样一来，递归思路就清晰了。
+    //确实精妙，相比自己的思路...
+
+    //得到每个节点的最大贡献值之后，如何得到二叉树的最大路径和？对于二叉树中的一个节点，该节点的最大路径和取决于
+    // 该节点的值与该节点的左右子节点的最大贡献值，如果子节点的最大贡献值为正，则计入该节点的最大路径和，
+    // 否则不计入该节点的最大路径和。维护一个全局变量 maxSum 存储最大路径和，在递归过程中更新 maxSum 的值，
+    // 最后得到的 maxSum 的值即为二叉树中的最大路径和。
+
+    public static int maxSum = Integer.MIN_VALUE;
+
+    public static int maxPathSum2(TreeNode root) {
+        maxGain(root);
+        return maxSum;
+    }
+
+    //因为这里我们只需要知道子树的最大贡献值，所以就没必要封装Info了
+    public static int maxGain(TreeNode node) {
+        if (node == null) {
+            return 0;
+        }
+
+        // 递归计算左右子节点的最大贡献值
+        // 只有在最大贡献值大于 0 时，才会选取对应子节点
+        int leftGain = Math.max(maxGain(node.left), 0); //3
+        int rightGain = Math.max(maxGain(node.right), 0); //3
+
+        // 节点的最大路径和取决于该节点的值与该节点的左右子节点的最大贡献值
+        int maxSumPath = node.value + leftGain + rightGain; //2.因为在处理节点最大贡献值的时候，我们已经过滤掉了负值（见3），
+        //也就是说这个时候的maxSumPath是包含多种情况的，可能只含左子节点的最大贡献值或右子节点的最大贡献值，或左右子节点包含自己，或只有自己
+        //而非只是左右节点包含自己一种情况。
+        //精妙！！！
+
+        // 更新答案
+        maxSum = Math.max(maxSum, maxSumPath); //TODO 1.这里为什么每次只拿穿过自身节点的累加值来比较？
+
+        // 返回节点的最大贡献值
+        return node.value + Math.max(leftGain, rightGain);
+    }
 }
