@@ -11,25 +11,27 @@ import java.util.Stack;
 public class TraversalBinaryTree {
 
     public static void main(String[] args) {
-//        TreeNode node1 = new TreeNode(1);
-//        TreeNode node2 = new TreeNode(2);
-//        TreeNode node3 = new TreeNode(3);
-//        TreeNode node4 = new TreeNode(4);
-//        TreeNode node5 = new TreeNode(5);
-//        TreeNode node6 = new TreeNode(6);
-//        TreeNode node7 = new TreeNode(7);
-//        node1.left = node2;
-//        node1.right = node3;
-//        node2.left = node4;
+        TreeNode node1 = new TreeNode(1);
+        TreeNode node2 = new TreeNode(2);
+        TreeNode node3 = new TreeNode(3);
+        TreeNode node4 = new TreeNode(4);
+        TreeNode node5 = new TreeNode(5);
+        TreeNode node6 = new TreeNode(6);
+        TreeNode node7 = new TreeNode(7);
+        node1.left = node2;
+        node1.right = node3;
+        node2.left = node4;
 //        node2.right = node5;
 //        node3.left = node6;
 //        node3.right = node7;
-////        node4.left = new TreeNode(8);
-////        node5.right = new TreeNode(8);
-////        node5.left = new TreeNode(10);
-//        print(node1);
-//        boolean cbt = isCBT(node1);
-//        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
+//        node4.left = new TreeNode(8);
+//        node5.right = new TreeNode(8);
+//        node5.left = new TreeNode(10);
+        print(node1);
+        boolean cbt = isCBT(node1);
+        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
+        boolean cbt2 = isCBT2(node1);
+        System.out.println(cbt2 ? "该树为完全二叉树" : "该树非完全二叉树");
 //
 //        System.out.println("------最大距离-------");
 //        int distance = maxDistance(node1);
@@ -218,28 +220,28 @@ public class TraversalBinaryTree {
 //        System.out.println("-------折纸问题-------");
 //        printPaperFold(3);
 
-        TreeNode node6 = new TreeNode(6);
-        TreeNode node8 = new TreeNode(8);
-        TreeNode node3 = new TreeNode(3);
-        TreeNode node4 = new TreeNode(4);
-        TreeNode node5 = new TreeNode(5);
-        TreeNode node9 = new TreeNode(9);
-        TreeNode node7 = new TreeNode(7);
-        node6.left = node4;
-        node4.left = node3;
-        node4.right = node5;
-        node6.right = node8;
-        node8.left = node7;
-        node8.right = node9;
-        print(node6);
-        int maxBSTSize = maxBSTSize(node6);
-        System.out.println("最大搜索树节点数为：" + maxBSTSize);
-
-        System.out.println("-----最大路径和-----");
-        int maxPathSum = maxPathSum(node6);
-        System.out.println("最大路径和为：" + maxPathSum);
-        int maxPathSum2 = maxPathSum2(node6);
-        System.out.println("最大路径和为：" + maxPathSum2);
+//        TreeNode node6 = new TreeNode(6);
+//        TreeNode node8 = new TreeNode(8);
+//        TreeNode node3 = new TreeNode(3);
+//        TreeNode node4 = new TreeNode(4);
+//        TreeNode node5 = new TreeNode(5);
+//        TreeNode node9 = new TreeNode(9);
+//        TreeNode node7 = new TreeNode(7);
+//        node6.left = node4;
+//        node4.left = node3;
+//        node4.right = node5;
+//        node6.right = node8;
+//        node8.left = node7;
+//        node8.right = node9;
+//        print(node6);
+//        int maxBSTSize = maxBSTSize(node6);
+//        System.out.println("最大搜索树节点数为：" + maxBSTSize);
+//
+//        System.out.println("-----最大路径和-----");
+//        int maxPathSum = maxPathSum(node6);
+//        System.out.println("最大路径和为：" + maxPathSum);
+//        int maxPathSum2 = maxPathSum2(node6);
+//        System.out.println("最大路径和为：" + maxPathSum2);
     }
 
     public static class TreeNode {
@@ -888,6 +890,55 @@ public class TraversalBinaryTree {
             }
         }
         return true;
+    }
+
+    //TODO 通过递归判断是否是完全二叉树
+    //可能成为完全二叉树的情况
+    //1.左树满二叉树，右树满二叉树，左树高度等于右树高度
+    //2.左树满二叉树，右树满二叉树，左树高度等于右树高度加1
+    //3.左树完全二叉树，右树满二叉树，左树高度等于右树高度加1
+    //4.左树满二叉树，右树完全二叉树，左树高度等于右树高度
+    public static boolean isCBT2(TreeNode head) {
+        if (head == null) {
+            return true;
+        }
+        return processCBT(head).isCBT;
+    }
+
+    public static CBTInfo processCBT(TreeNode node) {
+        if (node == null) {
+            return new CBTInfo(true, true, 0);
+        }
+        CBTInfo leftInfo = processCBT(node.left);
+        CBTInfo rightInfo = processCBT(node.right);
+        boolean isFull = leftInfo.isFull && rightInfo.isFull && leftInfo.height == rightInfo.height;
+        int height = Math.max(leftInfo.height, rightInfo.height) + 1;
+        boolean isCBT = false;
+        if (leftInfo.isFull && rightInfo.isFull && leftInfo.height == rightInfo.height) {
+            isCBT = true;
+        }
+        if (leftInfo.isFull && rightInfo.isFull && leftInfo.height == rightInfo.height + 1) {
+            isCBT = true;
+        }
+        if (leftInfo.isCBT && rightInfo.isFull && leftInfo.height == rightInfo.height + 1) {
+            isCBT = true;
+        }
+        if (leftInfo.isFull && rightInfo.isCBT && leftInfo.height == rightInfo.height) {
+            isCBT = true;
+        }
+        return new CBTInfo(isFull, isCBT, height);
+    }
+
+    public static class CBTInfo {
+        boolean isFull;
+        boolean isCBT;
+        int height;
+
+        public CBTInfo(boolean isFull, boolean isCBT, int height) {
+            this.isFull = isFull;
+            this.isCBT = isCBT;
+            this.height = height;
+        }
     }
 
     //TODO 判断是否是满二叉树
