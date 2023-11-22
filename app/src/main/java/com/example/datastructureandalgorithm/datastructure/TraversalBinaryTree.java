@@ -21,17 +21,20 @@ public class TraversalBinaryTree {
         node1.left = node2;
         node1.right = node3;
         node2.left = node4;
-//        node2.right = node5;
-//        node3.left = node6;
-//        node3.right = node7;
+        node2.right = node5;
+        node3.left = node6;
+        node3.right = node7;
 //        node4.left = new TreeNode(8);
 //        node5.right = new TreeNode(8);
 //        node5.left = new TreeNode(10);
         print(node1);
-        boolean cbt = isCBT(node1);
-        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
-        boolean cbt2 = isCBT2(node1);
-        System.out.println(cbt2 ? "该树为完全二叉树" : "该树非完全二叉树");
+//        boolean cbt = isCBT(node1);
+//        System.out.println(cbt ? "该树为完全二叉树" : "该树非完全二叉树");
+//        boolean cbt2 = isCBT2(node1);
+//        System.out.println(cbt2 ? "该树为完全二叉树" : "该树非完全二叉树");
+
+        TreeNode lowestAncestor = lowestAncestor(node1, node5, node4);
+        System.out.println("最低公共祖先为：" + lowestAncestor.value);
 //
 //        System.out.println("------最大距离-------");
 //        int distance = maxDistance(node1);
@@ -1156,4 +1159,45 @@ public class TraversalBinaryTree {
         // 返回节点的最大贡献值
         return node.value + Math.max(leftGain, rightGain);
     }
+
+    //TODO 求一颗二叉树节点a与节点b的最低公共祖先
+    public static TreeNode lowestAncestor(TreeNode head, TreeNode a, TreeNode b) {
+        System.out.println("目标节点a: " + a.value + ", " + "目标节点b: " + b.value);
+        return processAncestor(head, a, b).ans;
+    }
+
+    public static AncestorInfo processAncestor(TreeNode node, TreeNode a, TreeNode b) {
+        if (node == null) {
+            return new AncestorInfo(false, false, null);
+        }
+        AncestorInfo leftInfo = processAncestor(node.left, a, b);
+        AncestorInfo rightInfo = processAncestor(node.right, a, b);
+        boolean isFindA = node == a || leftInfo.isFindA || rightInfo.isFindA;
+        boolean isFindB = node == b || leftInfo.isFindB || rightInfo.isFindB;
+        TreeNode ans = null;
+        if (leftInfo.ans != null) {
+            //如果左子树找到了公共祖先，那么往上传即可
+            ans = leftInfo.ans;
+        } else if (rightInfo.ans != null) {
+            //右子树同理
+            ans = rightInfo.ans;
+        } else if (isFindA && isFindB) {
+            //如果左右子树都还没找到公共祖先，而此时已经找到a和b，那么当前节点就是最低的公共祖先
+            ans = node;
+        }
+        return new AncestorInfo(isFindA, isFindB, ans);
+    }
+
+    public static class AncestorInfo {
+        boolean isFindA;
+        boolean isFindB;
+        TreeNode ans;
+
+        public AncestorInfo(boolean isFindA, boolean isFindB, TreeNode ans) {
+            this.isFindA = isFindA;
+            this.isFindB = isFindB;
+            this.ans = ans;
+        }
+    }
+
 }
