@@ -245,6 +245,42 @@ public class TraversalBinaryTree {
 //        System.out.println("最大路径和为：" + maxPathSum);
 //        int maxPathSum2 = maxPathSum2(node6);
 //        System.out.println("最大路径和为：" + maxPathSum2);
+
+        System.out.println("-----获取公司最大快乐值-----");
+        List<Staff> empty = new ArrayList<>();
+        Staff s1 = new Staff(8, empty);
+        Staff s2 = new Staff(7, empty);
+        Staff s3 = new Staff(6, empty);
+        Staff s4 = new Staff(9, empty);
+        Staff s5 = new Staff(4, empty);
+        Staff s6 = new Staff(1, empty);
+        Staff s7 = new Staff(7, empty);
+        Staff s8 = new Staff(9, empty);
+
+        List<Staff> staffList1 = new ArrayList<>();
+        staffList1.add(s1);
+        staffList1.add(s2);
+        staffList1.add(s3);
+        Staff s9 = new Staff(4, staffList1);
+
+        List<Staff> staffList2 = new ArrayList<>();
+        staffList2.add(s4);
+        staffList2.add(s5);
+        Staff s10 = new Staff(5, staffList2);
+
+        List<Staff> staffList3 = new ArrayList<>();
+        staffList3.add(s6);
+        staffList3.add(s7);
+        staffList3.add(s8);
+        Staff s11 = new Staff(6, staffList3);
+
+        List<Staff> staffList4 = new ArrayList<>();
+        staffList4.add(s9);
+        staffList4.add(s10);
+        staffList4.add(s11);
+        Staff boss = new Staff(3, staffList4);
+        int maxHappy = maxHappy(boss);
+        System.out.println("最大快乐值为：" + maxHappy);
     }
 
     public static class TreeNode {
@@ -1199,5 +1235,50 @@ public class TraversalBinaryTree {
             this.ans = ans;
         }
     }
+
+    //TODO 一个公司内，一个领导有多个下属（不同领导下属没有交集），每个人有自己对应的快乐值，要求举办一个聚会，邀请员工参加，
+    // 让公司来的人总的快乐值最大，其中直系领导和员工只能来一方。
+    public static class Staff {
+        int happy;
+        List<Staff> staffs;
+
+        public Staff(int happy, List<Staff> staffs) {
+            this.happy = happy;
+            this.staffs = staffs;
+        }
+    }
+
+    public static int maxHappy(Staff head) {
+        StaffInfo info = processStaff(head);
+        return Math.max(info.chose, info.noChose);
+    }
+
+    public static StaffInfo processStaff(Staff staff) {
+        if (staff == null) {
+            return new StaffInfo(0, 0);
+        }
+        //如果自己被选中的话，那就至少有自己的happy值
+        int chose = staff.happy;
+        //自己没被选中
+        int noChose = 0;
+        for (Staff s : staff.staffs) {
+            StaffInfo info = processStaff(s);
+            chose += info.noChose;
+//            noChose += info.chose; //这边处理有问题，应当是当自己未被选中时，子节点被选或不被选都可以，取大值
+            noChose += Math.max(info.chose, info.noChose);
+        }
+        return new StaffInfo(chose, noChose);
+    }
+
+    public static class StaffInfo {
+        int chose; //被邀请
+        int noChose; //没有被邀请
+
+        public StaffInfo(int chose, int noChose) {
+            this.chose = chose;
+            this.noChose = noChose;
+        }
+    }
+
 
 }
