@@ -1,7 +1,9 @@
 package com.example.datastructureandalgorithm.datastructure;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -13,17 +15,46 @@ public class Greedy {
 
     public static void main(String[] args) {
 //        String[] arr = {"a", "ba", "b"};
-        String[] arr = {"ba", "b"};
-        String s = lowestString(arr);
-        System.out.println("字典序最低的字符串为：" + s);
-        System.out.println("--------------");
-        System.out.println("单字符串正常字典序");
-        Arrays.sort(arr, new NormalComparator());
-        for (String e : arr) {
-            System.out.println(e);
+//        String[] arr = {"ba", "b"};
+//        String s = lowestString(arr);
+//        System.out.println("字典序最低的字符串为：" + s);
+//        System.out.println("--------------");
+//        System.out.println("单字符串正常字典序");
+//        Arrays.sort(arr, new NormalComparator());
+//        for (String e : arr) {
+//            System.out.println(e);
+//        }
+//        String stringByGreedy = lowestStringByGreedy(arr);
+//        System.out.println("贪心解为：" + stringByGreedy);
+
+        System.out.println("-----会议室安排问题-----");
+//        Meeting meeting1 = new Meeting(1, 3);
+//        Meeting meeting2 = new Meeting(2, 4);
+//        Meeting meeting3 = new Meeting(4, 6);
+//        Meeting meeting4 = new Meeting(3, 4);
+//        Meeting meeting5 = new Meeting(2, 5);
+//        Meeting meeting6 = new Meeting(4, 5);
+        Meeting[] source = {new Meeting(1, 3), new Meeting(2, 4), new Meeting(4, 6),
+                new Meeting(3, 4), new Meeting(2, 5), new Meeting(4, 5)};
+        List<Meeting> meetingList = maxMeeting(source);
+        System.out.println("最优安排会议为：");
+        for (Meeting m : meetingList) {
+            System.out.println("[" + m.start + ", " + m.end + "]");
         }
-        String stringByGreedy = lowestStringByGreedy(arr);
-        System.out.println("贪心解为：" + stringByGreedy);
+        System.out.println("共" + meetingList.size() + "次会议");
+
+//        System.out.println("----暴力尝试1----");
+//        List<List<Meeting>> lists = maxMeetingByViolence(source);
+//        System.out.println("结果是否为空: " + lists.isEmpty());
+//        for (List<Meeting> list : lists) {
+//            System.out.println("安排情况：");
+//            for (Meeting m : list) {
+//                System.out.print("[" + m.start + ", " + m.end + "], ");
+//            }
+//        }
+        System.out.println("----暴力尝试2----");
+        int count = maxMeetingCountByViolence(source);
+        System.out.println("最大会议数为：" + count);
     }
 
     //TODO 给定一个由字符串组成的数组，必须把所有的字符串拼接起来，返回所有可能的结果中字典序最小的结果。
@@ -94,6 +125,7 @@ public class Greedy {
     }
 
     public static TreeSet<String> process(String[] arr) {
+        //利用TreeSet特性达到自动字典序排序的效果
         TreeSet<String> ans = new TreeSet<>();
         if (arr.length == 0) {
             //TODO 或直接在返回的时候添加
@@ -123,6 +155,115 @@ public class Greedy {
     public static String[] removeIndexStr(String[] arr, int index) {
         int l = arr.length;
         String[] ans = new String[l - 1];
+        int j = 0;
+        for (int i = 0; i < l; i++) {
+            if (i != index) {
+                ans[j++] = arr[i];
+            }
+        }
+        return ans;
+    }
+
+    //TODO 会议室安排问题
+    //有不同时间段的会议，要求安排出最多的会议数
+    //通过贪心：1.我们找最早开始的会议来安排（不行，很容易举出反例, 比如【1， 24】全天占满）
+    //2.选取时间段最短的会议来安排（也不行，同样容易举出反例，比如有三个会议【1,5】，【4,6】，【5,10】，明显不能选中间）
+    //3.选取结束时间早的会议来安排（其实结束的早另一方面也意味着时间段短，正确贪心）
+    public static List<Meeting> maxMeeting(Meeting[] source) {
+        //先按时间结束早晚排序
+        Arrays.sort(source, new TimeComparator());
+        List<Meeting> ans = new ArrayList<>();
+        int timeLine = 0;
+        for (Meeting m : source) {
+            if (m.start >= timeLine) {
+                ans.add(m);
+                //更新timeLine
+                timeLine = m.end;
+            }
+        }
+        return ans;
+    }
+
+    public static class TimeComparator implements Comparator<Meeting> {
+
+        @Override
+        public int compare(Meeting o1, Meeting o2) {
+            return o1.end - o2.end;
+        }
+    }
+
+    public static class Meeting {
+        int start;
+        int end;
+
+        public Meeting(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+    }
+
+    //暴力解法，把所有时间排列顺序符合的情况都列出来
+    public static List<List<Meeting>> maxMeetingByViolence(Meeting[] source) {
+        if (source == null || source.length == 0) {
+            System.out.println("length=0");
+            return new ArrayList<>();
+        }
+        return process(source, 0);
+    }
+
+    public static List<List<Meeting>> process(Meeting[] source, int timeline, List<List<Meeting>> ans) {
+        List<List<Meeting>> lists = new ArrayList<>();
+        if (source.length == 0) {
+//            ans.add(new ArrayList<>());
+            return lists;
+        }
+
+        //让每个会议轮流当第一个会议
+        for (int i = 0; i < source.length; i++) {
+//            System.out.println("第" + i + "轮");
+            Meeting cur = source[i];
+            if (cur.start >= timeline) {
+//                System.out.println("当前会议: " + cur.start + "-" + cur.end);
+                Meeting[] curSource = removeIndexMeeting(source, i);
+                List<List<Meeting>> nextMeetings = process(curSource, cur.end);
+                if (nextMeetings.isEmpty()) {
+                    List<Meeting> empty = new ArrayList<>();
+                    empty.add(new Meeting(0, 0));
+                    nextMeetings.add(empty);
+                }
+                for (List<Meeting> list : nextMeetings) {
+                    list.add(0, cur);
+                }
+            }
+        }
+        return lists;
+    }
+
+    public static int maxMeetingCountByViolence(Meeting[] source) {
+        if (source == null || source.length == 0) {
+            return 0;
+        }
+        return processCount(source, 0, 0);
+    }
+
+    public static int processCount(Meeting[] source, int timeline, int done) {
+        int max = done;
+        if (source.length == 0) {
+            return max;
+        }
+        for (int i = 0; i < source.length; i++) {
+            if (timeline <= source[i].start) {
+                timeline = source[i].end;
+                Meeting[] next = removeIndexMeeting(source, i);
+                max = Math.max(max, processCount(next, timeline, done + 1));
+            }
+        }
+        return max;
+    }
+
+    public static Meeting[] removeIndexMeeting(Meeting[] arr, int index) {
+        int l = arr.length;
+        Meeting[] ans = new Meeting[l - 1];
         int j = 0;
         for (int i = 0; i < l; i++) {
             if (i != index) {
