@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.TreeSet;
 
 /**
@@ -27,21 +28,15 @@ public class Greedy {
 //        String stringByGreedy = lowestStringByGreedy(arr);
 //        System.out.println("贪心解为：" + stringByGreedy);
 
-        System.out.println("-----会议室安排问题-----");
-//        Meeting meeting1 = new Meeting(1, 3);
-//        Meeting meeting2 = new Meeting(2, 4);
-//        Meeting meeting3 = new Meeting(4, 6);
-//        Meeting meeting4 = new Meeting(3, 4);
-//        Meeting meeting5 = new Meeting(2, 5);
-//        Meeting meeting6 = new Meeting(4, 5);
-        Meeting[] source = {new Meeting(1, 3), new Meeting(2, 4), new Meeting(4, 6),
-                new Meeting(3, 4), new Meeting(2, 5), new Meeting(4, 5)};
-        List<Meeting> meetingList = maxMeeting(source);
-        System.out.println("最优安排会议为：");
-        for (Meeting m : meetingList) {
-            System.out.println("[" + m.start + ", " + m.end + "]");
-        }
-        System.out.println("共" + meetingList.size() + "次会议");
+//        System.out.println("-----会议室安排问题-----");
+//        Meeting[] source = {new Meeting(1, 3), new Meeting(2, 4), new Meeting(4, 6),
+//                new Meeting(3, 4), new Meeting(2, 5), new Meeting(4, 5)};
+//        List<Meeting> meetingList = maxMeeting(source);
+//        System.out.println("最优安排会议为：");
+//        for (Meeting m : meetingList) {
+//            System.out.println("[" + m.start + ", " + m.end + "]");
+//        }
+//        System.out.println("共" + meetingList.size() + "次会议");
 
 //        System.out.println("----暴力尝试1----");
 //        List<List<Meeting>> lists = maxMeetingByViolence(source);
@@ -52,9 +47,21 @@ public class Greedy {
 //                System.out.print("[" + m.start + ", " + m.end + "], ");
 //            }
 //        }
-        System.out.println("----暴力尝试2----");
-        int count = maxMeetingCountByViolence(source);
-        System.out.println("最大会议数为：" + count);
+//        System.out.println("----暴力尝试2----");
+//        int count = maxMeetingCountByViolence(source);
+//        System.out.println("最大会议数为：" + count);
+
+        System.out.println("-----黄金切割问题-----");
+        int[] arr1 = {20, 30, 50};
+        int cost = lestCost(arr1);
+        System.out.println("最少花费：" + cost);
+        int costByViolence = lestCostByViolence(arr1);
+        System.out.println("最少花费暴力解：" + costByViolence);
+        int[] arr2 = {60, 30, 10, 20, 80};
+        int cost2 = lestCost(arr2);
+        System.out.println("最少花费：" + cost2);
+        int costByViolence2 = lestCostByViolence(arr2);
+        System.out.println("最少花费暴力解：" + costByViolence2);
     }
 
     //TODO 给定一个由字符串组成的数组，必须把所有的字符串拼接起来，返回所有可能的结果中字典序最小的结果。
@@ -211,7 +218,7 @@ public class Greedy {
         return process(source, 0);
     }
 
-    public static List<List<Meeting>> process(Meeting[] source, int timeline, List<List<Meeting>> ans) {
+    public static List<List<Meeting>> process(Meeting[] source, int timeline) {
         List<List<Meeting>> lists = new ArrayList<>();
         if (source.length == 0) {
 //            ans.add(new ArrayList<>());
@@ -271,6 +278,64 @@ public class Greedy {
             }
         }
         return ans;
+    }
+
+    //解决输入一个数组返回金条切割的最小代价
+    //一块金条切成两半，需要花费和长度数值一样的铜板，比如长度为20的金条，切割需要花费20个铜板，一群人想分，怎么分最省铜板？
+    //例如给定数组{10, 20, 30}，代表三个人去分长度为60的金条，
+    //如果先把长度60的金条分成10和50，那么花费60铜板；然后再把50分成20和30，再花费50个铜板，那么一共花费110铜板
+    //但如果先把60分成30和30，那么花费60铜板；然后再把30分成10和20，再花费30个铜板，总共需要花费90个铜板
+    //很显然，后者更优
+    //尝试之后，我们就可以贪心，每次先切大的，然后再分小的，这样花费最少。其实很容易发现，分出来的结果就是一颗二叉树
+    public static int lestCost(int[] arr) {
+        int cost = 0;
+        //准备一个小根堆，先把数组放进去
+        PriorityQueue<Integer> queue = new PriorityQueue<>();
+        for (int i : arr) {
+            queue.add(i);
+        }
+        //然后两两取出，其实也就是根据结果往回推
+        while (queue.size() > 1) {
+            int cur = queue.poll() + queue.poll();
+            cost += cur;
+            queue.add(cur);
+        }
+        return cost;
+    }
+
+    //暴力解
+    public static int lestCostByViolence(int[] arr) {
+        if (arr == null || arr.length == 0) {
+            return 0;
+        }
+        return process(arr, 0);
+    }
+
+    //arr: 剩余数组，curCost: 当前花费
+    public static int process(int[] arr, int curCost) {
+        if (arr.length == 1) {
+            return curCost;
+        }
+        int ans = Integer.MAX_VALUE;
+        //通过两个循环把所有的组合情况都尝试出来
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = i + 1; j < arr.length; j++) {
+                ans = Math.min(ans, process(mergeArr(arr, i, j), curCost + arr[i] + arr[j]));
+            }
+        }
+        return ans;
+    }
+
+    public static int[] mergeArr(int[] arr, int i, int j) {
+        int[] back = new int[arr.length - 1];
+        back[0] = arr[i] + arr[j];
+        int curI = 1;
+        for (int index = 0; index < arr.length; index++) {
+            if (index != i && index != j) {
+                back[curI++] = arr[index];
+            }
+        }
+        return back;
     }
 
 }
