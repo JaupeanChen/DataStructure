@@ -1,5 +1,9 @@
 package com.example.datastructureandalgorithm.datastructure;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,6 +18,7 @@ import java.util.TreeSet;
  */
 public class Greedy {
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public static void main(String[] args) {
 //        String[] arr = {"a", "ba", "b"};
 //        String[] arr = {"ba", "b"};
@@ -62,6 +67,14 @@ public class Greedy {
         System.out.println("最少花费：" + cost2);
         int costByViolence2 = lestCostByViolence(arr2);
         System.out.println("最少花费暴力解：" + costByViolence2);
+
+        System.out.println("-----项目收益问题-----");
+        int[] costs = {200, 180, 370, 250, 300};
+        int[] profits = {50, 60, 90, 30, 150};
+        int m = 200;
+        int k = 3;
+        int bestProfit = bestProfit(costs, profits, k, m);
+        System.out.println("最好收益为：" + bestProfit);
     }
 
     //TODO 给定一个由字符串组成的数组，必须把所有的字符串拼接起来，返回所有可能的结果中字典序最小的结果。
@@ -280,7 +293,7 @@ public class Greedy {
         return ans;
     }
 
-    //解决输入一个数组返回金条切割的最小代价
+    //TODO 解决输入一个数组返回金条切割的最小代价
     //一块金条切成两半，需要花费和长度数值一样的铜板，比如长度为20的金条，切割需要花费20个铜板，一群人想分，怎么分最省铜板？
     //例如给定数组{10, 20, 30}，代表三个人去分长度为60的金条，
     //如果先把长度60的金条分成10和50，那么花费60铜板；然后再把50分成20和30，再花费50个铜板，那么一共花费110铜板
@@ -336,6 +349,58 @@ public class Greedy {
             }
         }
         return back;
+    }
+
+    //TODO 项目收益问题
+    //给定正数数组costs, profits, K, M
+    //costs表示项目花费，profits表示利润（扣除花费之后）
+    //K表示之至多只能做K个项目（串行），M表示初始资金
+    //求得最大获利数目
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static int bestProfit(int[] costs, int[] profits, int k, int m) {
+        PriorityQueue<Program> minQueue = new PriorityQueue<>(new MinComparator());
+        PriorityQueue<Program> maxQueue = new PriorityQueue<>(new MaxComparator());
+        //先把数据都加到小根堆
+        for (int i = 0; i < costs.length; i++) {
+            minQueue.add(new Program(costs[i], profits[i]));
+        }
+        while (k > 0) {
+            while (!minQueue.isEmpty() && minQueue.peek().cost <= m) {
+                maxQueue.add(minQueue.poll());
+            }
+            if (maxQueue.isEmpty()) {
+                return m;
+            }
+            m += maxQueue.poll().profit;
+            k--;
+        }
+        return m;
+    }
+
+    //小根堆，按花费排序
+    public static class MinComparator implements Comparator<Program> {
+        @Override
+        public int compare(Program o1, Program o2) {
+            return o1.cost - o2.cost;
+        }
+    }
+
+    //大根堆，按收益从大到小排序
+    public static class MaxComparator implements Comparator<Program> {
+        @Override
+        public int compare(Program o1, Program o2) {
+            return o2.profit - o1.profit;
+        }
+    }
+
+    public static class Program {
+        int cost;
+        int profit;
+
+        public Program(int cost, int profit) {
+            this.cost = cost;
+            this.profit = profit;
+        }
     }
 
 }
